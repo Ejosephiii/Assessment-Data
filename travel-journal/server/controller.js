@@ -1,30 +1,33 @@
 require('dotenv').config()
-
-const  Sequelize  = require('sequelize');
-
 const {CONNECTION_STRING} = process.env
 
+const  Sequelize  = require('sequelize')
+
+
 const sequelize = new Sequelize(CONNECTION_STRING, {
-    dialect: 'postgress',
+    dialect: 'postgres',
     dialectOptions: {
         ssl: {
             rejectUnauthorized: false
         }
     }
-})
+  })
     
 module.exports = {
-deleteCity: (req, res) => {
-    sequelize.query(`DELETE city WHERE city_id = {req.params};`)
-    .then(dbRes => res.status(200).send(dbRes[0]))
-},
+// deleteCity: (req, res) => {
+//     sequelize.query(`DELETE city WHERE city_id =' ${req.params}';`)
+//     .then(dbRes => res.status(200).send(dbRes[0]))
+// },
 
 getCities: (req, res) => {
-sequelize.query(`SELECT cities.city_id, cities.city_id AS city, cities.rating, countries.country_id, countries.name AS country JOIN city ON country WHERE country_id = city_id`)
+sequelize.query(`SELECT cities.city_id, cities.name, cities.rating, countries.country, country.name FROM cities JOIN cities ON country.country_id=country.country_id;`)
 },
 
 createCity: (req, res) => {
-query.selector(`INSERT INTO cities(name, rating, country_id)
+query.selector(`CREATE TABLE cities (city_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    rating INTENGER,
+    country_id INTEGER REFERENCES countries(country_id));INSERT INTO cities(name, rating, country_id)
 VALUES('san deigo', 8, 1),
 ('Oakland', 10, 2);`)
 .then(dbRes => res.status(200).send(dbRes[0]))
@@ -38,10 +41,6 @@ VALUES('san deigo', 8, 1),
     
     
     seed: (req, res) => {
-        sequelize.query(`CREATE TABLE cities (city_id SERIAL PRIMARY KEY,
-            name VARCHAR(255),
-            rating INTENGER,
-            country_id INTEGER REFERENCES countries(country_id));`)
         sequelize.query(`
             drop table if exists cities;
             drop table if exists countries;
